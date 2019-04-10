@@ -20,12 +20,17 @@ public class OneTableForOneSourceExtractingAlgorithm implements ExtractAlgorithm
 		// create dynamic ~ just kidding
 		Connection cnn = cnUtil.get();
 		Statement stmt = cnn.createStatement();
-		stmt.executeUpdate(createIfNotExistDB);
-
+		int createdTable = stmt.executeUpdate(createIfNotExistDB);
+		if (createdTable > 0) {
+			// creating index
+			cnn.createStatement().executeUpdate("CREATE INDEX " + host.getStagingTable() + "_auto_inc_id"
+					+ " ON STAGING." + host.getStagingTable() + "(id)");
+		}
 		String fullPathFile = host.getLocalDir() + File.separator + fileName;
 		String loadInFileQuery = "LOAD DATA LOCAL INFILE '" + fullPathFile + "'" + " INTO TABLE "
 				+ host.getStagingTable() + " FIELDS TERMINATED BY '" + host.getDelim() + "'"
-				+ " LINES TERMINATED BY '\n'" + " IGNORE 1 ROWS SET log_id=" + logId;
+				+ " LINES TERMINATED BY '\n'" + " IGNORE 1 ROWS SET id=NULL, log_id=" + logId + ",host_id="
+				+ host.getHostId();
 		// then load just like simple :)))
 
 		int insertedRecord = -1;
@@ -41,11 +46,11 @@ public class OneTableForOneSourceExtractingAlgorithm implements ExtractAlgorithm
 		bd.append("CREATE TABLE IF NOT EXISTS ");
 		bd.append(host.getStagingTable());
 		bd.append("(");
-		
+
 		for (int i = 0; i < listColumns.length; i++) {
 			bd.append(listColumns[i] + " text,");
 		}
-		bd.append("log_id int");
+		bd.append("id int AUTO_INCREMENT primary key");
 		bd.append(")");
 		bd.append(" CHARACTER SET utf8mb4");
 		System.out.println(bd.toString());

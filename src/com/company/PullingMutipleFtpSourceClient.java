@@ -108,7 +108,7 @@ public class PullingMutipleFtpSourceClient {
 				try {
 					System.out.println();
 					System.out.println(host.getHostName() + "  " + host.getUser() + ", start extracting: " + fileName);
-					int stagingRecords = extractScript.extract(host, fileName , hostLog.getHostId());
+					int stagingRecords = extractScript.extract(host, fileName , hostLog.getLogId());
 					log.afterExtractingProcess(host, fileName, stagingRecords);
 					System.out.println(
 							host.getHostName() + "  " + host.getUser() + ", extracting successfully: " + fileName);

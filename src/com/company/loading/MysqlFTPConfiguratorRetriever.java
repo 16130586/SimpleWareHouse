@@ -21,7 +21,6 @@ public class MysqlFTPConfiguratorRetriever implements HostConfigRetriever {
         String selectAll = "SELECT * FROM host_config where isActive<>0";
         PreparedStatement pre = cnn.prepareStatement(selectAll);
         ResultSet set = pre.executeQuery();
-        List<String> columns = new LinkedList<>();
         while (set.next()) {
             HostConfiguration configer = new HostConfiguration();
             configer.setHostId(Integer.parseInt(set.getString("id")));
