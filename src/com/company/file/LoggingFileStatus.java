@@ -8,7 +8,7 @@ public interface LoggingFileStatus {
 
     void beforeExtractingProcess(HostConfiguration config, String fileName);
 
-    void afterExtractingProcess(HostConfiguration config, String fileName, int staggingRecord);
+    void afterExtractingProcessSuccessfully(HostConfiguration config, String fileName, int staggingRecord);
 
     void onExtractingErrorOccus(HostConfiguration config, String fileName);
 

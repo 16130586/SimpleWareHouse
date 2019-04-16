@@ -69,6 +69,6 @@ public class LoadingFromStagingToWareHouse {
 							+ log_id);
 			cnn.createStatement().execute("TRUNCATE TABLE " + from_staging_table);
 		}
-
+		cnUtil.close(cnn);
 	}
 }

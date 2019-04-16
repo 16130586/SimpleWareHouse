@@ -18,7 +18,7 @@ public class MysqlLoggingFileStatus implements LoggingFileStatus {
 
 	}
 
-	public void afterExtractingProcess(HostConfiguration config, String fileName, int stagingRecords) {
+	public void afterExtractingProcessSuccessfully(HostConfiguration config, String fileName, int stagingRecords) {
 		String insertNewLogQuery = "UPDATE log_status SET file_status=?, stagging_record=?,end_extracting_date=? WHERE host_id=? AND file_name=?";
 		try {
 			PreparedStatement stmt = cnn.prepareStatement(insertNewLogQuery);
