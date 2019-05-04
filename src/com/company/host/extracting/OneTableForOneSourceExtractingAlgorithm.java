@@ -13,24 +13,24 @@ public class OneTableForOneSourceExtractingAlgorithm implements ExtractAlgorithm
 	@Override
 	// 2.6.1 Extracting algorithm
 	public int extract(HostConfiguration host, String fileName, int logId) throws SQLException {
-		// 	// 2.6.1.1 Connecting to staging database	
+		// 	// 2.6.1.1 Kết nối đến staging database	
 		DBConnectionUtil cnUtil = new MySqlDBConnection(MySqlDBConnection.STAGING_URL, MySqlDBConnection.USER_NAME,
 				MySqlDBConnection.PASSWORD);
 		// first create table if not exist
-		// 2.6.1.3  Creating createIfNotExistDB query
+		// 2.6.1.3  Tạo query tạo bảng nếu chưa có từ data_config_columns
 		String createIfNotExistDB = buildCreateQuery(host);
 
 		// create dynamic ~ just kidding
 		Connection cnn = cnUtil.get();
 		Statement stmt = cnn.createStatement();
-		// 2.6.1.4 Executing createIfNotExistDB query
+		// 2.6.1.4 Khởi chạy createIfNotExistDB query
 		int createdTable = stmt.executeUpdate(createIfNotExistDB);
 		if (createdTable > 0) {
 			// creating index
 			cnn.createStatement().executeUpdate("CREATE INDEX " + host.getStagingTable() + "_auto_inc_id"
 					+ " ON STAGING." + host.getStagingTable() + "(id)");
 		}
-		// 2.6.1.5 Creating load_file_query from data_config to targeted staging table 
+		// 2.6.1.5 Tạo query load file từ data_config vào table tương ứng
 		String fullPathFile = host.getLocalDir() + File.separator + fileName;
 		String loadInFileQuery = "LOAD DATA LOCAL INFILE '" + fullPathFile + "'" + " INTO TABLE "
 				+ host.getStagingTable() + " FIELDS TERMINATED BY '" + host.getDelim() + "'"
@@ -39,11 +39,11 @@ public class OneTableForOneSourceExtractingAlgorithm implements ExtractAlgorithm
 		// then load just like simple :)))
 
 		int insertedRecord = -1;
-		// 2.6.1.6 Executing load_file_query
+		// 2.6.1.6 Khởi chạy load_file query
 		insertedRecord = stmt.executeUpdate(loadInFileQuery);
 		// select so simple :)
 		cnUtil.close(cnn);
-		// 2.6.1.8 Returning inserted records from executing query process
+		// 2.6.1.8 Trả về số record được chèn vào bẳng tương ứng
 		return insertedRecord;
 	}
 	// 2.6.1.3  Creating createIfNotExistDB query
