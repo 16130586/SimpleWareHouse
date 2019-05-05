@@ -6,8 +6,17 @@ import com.company.host.HostConfiguration;
 
 import java.io.File;
 import java.sql.Connection;
+import java.sql.PreparedStatement;
 import java.sql.SQLException;
 import java.sql.Statement;
+import java.sql.Timestamp;
+import java.text.DateFormat;
+import java.text.SimpleDateFormat;
+import java.text.spi.DateFormatProvider;
+import java.time.LocalDate;
+import java.util.Date;
+
+import org.apache.commons.net.ntp.TimeStamp;
 
 public class OneTableForOneSourceExtractingAlgorithm implements ExtractAlgorithm {
 	@Override
@@ -62,6 +71,28 @@ public class OneTableForOneSourceExtractingAlgorithm implements ExtractAlgorithm
 		bd.append(" CHARACTER SET utf8mb4");
 		System.out.println(bd.toString());
 		return bd.toString();
+	}
+	public static void main(String[] args) throws SQLException {
+		DBConnectionUtil cnUtil = new MySqlDBConnection(MySqlDBConnection.WAREHOUSE_URL, MySqlDBConnection.USER_NAME,
+				MySqlDBConnection.PASSWORD);
+		Connection cn = cnUtil.get();
+		String insertSql = "INSERT INTO WAREHOUSE.date(DATE_SK, FULL_DATE , DATE_OF_MONTH,MONTH_OF_YEAR,YEAR) VALUES(?,?,?,?,?)";
+		PreparedStatement stmt = cn.prepareStatement(insertSql);
+		
+		LocalDate startDate = LocalDate.of(1990, 1, 1);
+		LocalDate endDate = LocalDate.of(2000, 1, 1);
+		int sk = 1;
+		while(startDate.compareTo(endDate) < 0) {
+			stmt.setInt(1, sk++);
+			stmt.setTimestamp(2, new Timestamp(startDate.getYear(), startDate.getMonthValue(), startDate.getDayOfMonth(), 0, 0, 0, 0));
+			stmt.setInt(3, startDate.getDayOfMonth());
+			stmt.setInt(4, startDate.getMonthValue());
+			stmt.setInt(5, startDate.getYear());
+			stmt.executeUpdate();
+			startDate  = startDate.plusDays(1);
+		}
+		
+		
 	}
 
 }

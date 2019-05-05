@@ -202,10 +202,10 @@ public class ETLProcessingLauncher {
 			warehouse_require_cols = ready_staging_information.getString("warehouse_require_cols");
 			warehouse_cols = ready_staging_information.getString("warehouse_cols");
 			to_warehouse_table = ready_staging_information.getString("warehouse_table");
-			
+			System.out.println(host_id + "  " + from_staging_table + "  " + to_warehouse_table);
 			// 3.6 Tạo query lấy dữ liệu cần thiết từ table staging tương tới table warehouse tương ứng
 			String queryGetDataFromCurrentStaging = "".concat("SELECT ").concat("id," + warehouse_require_cols)
-					.concat(" FROM STAGING.").concat(from_staging_table);
+					.concat(" FROM STAGING.").concat(from_staging_table).concat(" AS BASE");
 			ResultSet dataRequiredForWareHouse = cnn.createStatement().executeQuery(queryGetDataFromCurrentStaging);
 			int insertedToWareHouseRecords = 0;
 			int updatedToWareHouseRecords = 0;
@@ -229,8 +229,9 @@ public class ETLProcessingLauncher {
 				}
 				// insert new record
 				String insertNewRecord = "INSERT INTO WAREHOUSE." + to_warehouse_table + "(" + warehouse_cols + ")"
-						+ " SELECT " + warehouse_require_cols + " FROM STAGING." + from_staging_table + " WHERE id="
+						+ " SELECT " + warehouse_require_cols + " FROM STAGING." + from_staging_table +  " AS BASE" +  " WHERE id="
 						+ dataRequiredForWareHouse.getInt("id");
+//				System.out.println(insertedToWareHouseRecords);
 				try {
 					// 3.12 Chèn dòng đó vào warehouse table tương ứng
 					cnn.createStatement().executeUpdate(insertNewRecord);
@@ -248,7 +249,7 @@ public class ETLProcessingLauncher {
 							+ ", file_status='" + FileStatus.LOADED_SUC.name().toLowerCase() + "'" + " WHERE id="
 							+ log_id);
 			// 3.8.2 Truncating table, make sure no existed data for the next time loading
-			cnn.createStatement().execute("TRUNCATE TABLE " + from_staging_table);
+			cnn.createStatement().execute("TRUNCATE TABLE STAGING." + from_staging_table);
 		}
 		cnUtil.close(cnn);
 	}
